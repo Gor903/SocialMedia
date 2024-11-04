@@ -1,7 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from core.database import Base
+
+if TYPE_CHECKING:
+    from api.v1.activities import Comment, Talk
 
 
 class Profile(Base):
@@ -28,6 +34,17 @@ class Profile(Base):
         foreign_keys="Follows.follower_id",
         back_populates="follower",
         cascade="all, delete",  # Optional: Define cascading behavior
+    )
+    comments: Mapped[list["Comment"]] = relationship(
+        "Comment",
+        back_populates="commenter",
+        cascade="all, delete",
+    )
+
+    talks: Mapped[list["Talk"]] = relationship(
+        "Talk",
+        back_populates="talker",
+        cascade="all, delete",
     )
 
 
