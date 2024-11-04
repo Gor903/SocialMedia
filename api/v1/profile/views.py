@@ -3,7 +3,6 @@ from typing import Annotated, List
 from fastapi import APIRouter, HTTPException
 from starlette import status
 
-from .follows_views import router as follows_router
 
 from api.v1.profile.schemas import (
     ProfilesResponse,
