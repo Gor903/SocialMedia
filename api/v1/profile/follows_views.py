@@ -1,5 +1,3 @@
-from math import trunc
-
 from fastapi import APIRouter, HTTPException
 
 from starlette import status

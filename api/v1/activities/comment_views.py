@@ -1,6 +1,3 @@
-from sndhdr import tests
-from sys import prefix
-
 from fastapi import APIRouter, Depends, HTTPException
 
 from typing import Annotated, List

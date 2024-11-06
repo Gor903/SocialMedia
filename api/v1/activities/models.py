@@ -1,8 +1,6 @@
 from datetime import datetime, timezone, timedelta
-from operator import index
-from typing import TYPE_CHECKING
 
-from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,7 +15,6 @@ class Comment(Base):
     text: Mapped[str] = mapped_column(String, nullable=False)
     commenter_id: Mapped[int] = mapped_column(Integer, ForeignKey("profiles.id"))
     talk_id: Mapped[int] = mapped_column(Integer, ForeignKey("talks.id"))
-
     date: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc) + timedelta(minutes=5),
@@ -33,11 +30,8 @@ class Talk(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(String, nullable=False)
-
     links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
-
     talker_id: Mapped[int] = mapped_column(Integer, ForeignKey("profiles.id"))
-
     date: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc) + timedelta(minutes=5),

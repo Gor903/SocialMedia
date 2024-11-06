@@ -20,7 +20,6 @@ class Profile(Base):
     name: Mapped[str] = mapped_column(String, nullable=True)
     surname: Mapped[str] = mapped_column(String, nullable=True)
     bio: Mapped[str | None] = mapped_column(String, nullable=True)
-
     social_links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
 
     followers: Mapped[list["Follows"]] = relationship(
@@ -58,7 +57,6 @@ class Follows(Base):
         Integer, ForeignKey("profiles.id"), primary_key=True
     )
 
-    # Relationships to link back to Account
     follower: Mapped[Profile] = relationship(
         "Profile", foreign_keys=[follower_id], back_populates="following"
     )

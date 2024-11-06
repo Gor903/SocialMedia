@@ -1,10 +1,11 @@
-from datetime import datetime
-from typing import List, Optional, Annotated
-
 from pydantic import BaseModel
-from sqlalchemy.sql.base import Options
 
-from api.v1.profile.schemas import ProfileDemoResponse
+from datetime import datetime
+from typing import List, Annotated
+
+from api.v1.profile.schemas import (
+    ProfileDemoResponse,
+)
 
 
 class CommentResponse(BaseModel):
