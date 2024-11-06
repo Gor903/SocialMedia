@@ -15,11 +15,11 @@ from api.v1.activities.schemas import (
 from . import crud
 
 
-router = APIRouter(prefix="/talks", tags=["talks"])
+router = APIRouter(prefix="/talks", tags=["Activities->Talks"])
 
 
 @router.get(
-    path="/talks/{owner_id}",
+    path="/{owner_id}",
     response_model=Annotated[List[TalkResponse], None],
 )
 async def get_talks(
@@ -36,7 +36,7 @@ async def get_talks(
 
 
 @router.get(
-    path="/talks/{talk_id}",
+    path="/{talk_id}",
     response_model=Annotated[TalkResponse, None],
 )
 async def get_talk(

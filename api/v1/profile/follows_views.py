@@ -1,92 +1,51 @@
-from typing import Annotated, List
-from unittest.mock import patch
-
-from starlette import status
+from math import trunc
 
 from fastapi import APIRouter, HTTPException
 
-from api.v1.dependencies import db_dependency, user_dependency
-from api.v1.profile.crud import (
-    get_followees,
-    get_followers,
-    follow,
-    unfollow,
-)
-from api.v1.profile.schemas import ProfileDemoResponse, FollowManagerRequest
+from starlette import status
+from typing import Annotated, List
 
-router = APIRouter(prefix="/follows", tags=["profiles->follows"])
+from api.v1.dependencies import (
+    db_dependency,
+    user_dependency,
+)
+from api.v1.profile.schemas import (
+    ProfileDemoResponse,
+    FollowManagerRequest,
+)
+from . import crud
+
+
+router = APIRouter(prefix="/follows", tags=["Profiles->Follows"])
 
 
 @router.get(
     path="/followers/self",
     response_model=Annotated[List[ProfileDemoResponse], None],
 )
-async def get_my_followers(db: db_dependency, user: user_dependency):
-    profiles = get_followers(user["id"], db)
+async def get_my_followers(
+    db: db_dependency,
+    user: user_dependency,
+) -> List[ProfileDemoResponse]:
+    profiles = crud.get_followers(
+        id=user["id"],
+        db=db,
+    )
 
-    return [
-        {
-            "id": profile.id,
-            "username": profile.username,
-            "name": profile.name,
-            "surname": profile.surname,
-        }
-        for profile in profiles
-    ]
+    return [profile for profile in profiles]
 
 
 @router.get(
     path="/followees/self",
     response_model=Annotated[List[ProfileDemoResponse], None],
 )
-async def get_my_followers(db: db_dependency, user: user_dependency):
-    profiles = get_followees(user["id"], db)
+async def get_my_followers(
+    db: db_dependency,
+    user: user_dependency,
+) -> List[ProfileDemoResponse]:
+    profiles = crud.get_followees(user["id"], db)
 
-    return [
-        {
-            "id": profile.id,
-            "username": profile.username,
-            "name": profile.name,
-            "surname": profile.surname,
-        }
-        for profile in profiles
-    ]
-
-
-@router.get(
-    path="/followers/{profile_id}",
-    response_model=Annotated[List[ProfileDemoResponse], None],
-)
-async def get_my_followers(profile_id: int, db: db_dependency, user: user_dependency):
-    profiles = get_followers(profile_id, db)
-
-    return [
-        {
-            "id": profile.id,
-            "username": profile.username,
-            "name": profile.name,
-            "surname": profile.surname,
-        }
-        for profile in profiles
-    ]
-
-
-@router.get(
-    path="/followees/{profile_id}",
-    response_model=Annotated[List[ProfileDemoResponse], None],
-)
-async def get_my_followers(profile_id: int, db: db_dependency, user: user_dependency):
-    profiles = get_followees(profile_id, db)
-
-    return [
-        {
-            "id": profile.id,
-            "username": profile.username,
-            "name": profile.name,
-            "surname": profile.surname,
-        }
-        for profile in profiles
-    ]
+    return [profile for profile in profiles]
 
 
 @router.post(
@@ -95,8 +54,8 @@ async def get_my_followers(profile_id: int, db: db_dependency, user: user_depend
 )
 async def follow(
     db: db_dependency, user: user_dependency, followee: FollowManagerRequest
-):
-    if not follow(user["id"], followee.id, db):
+) -> bool:
+    if not crud.follow(user["id"], followee.id, db):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Can't follow!!!"
         )
@@ -109,5 +68,12 @@ async def follow(
 )
 async def unfollow(
     db: db_dependency, user: user_dependency, followee: FollowManagerRequest
-):
-    unfollow(user["id"], followee.id, db)
+) -> None:
+    follow = crud.unfollow(
+        follower_id=user["id"],
+        followee_id=followee.id,
+        db=db,
+    )
+
+    db.delete(follow)
+    db.commit()

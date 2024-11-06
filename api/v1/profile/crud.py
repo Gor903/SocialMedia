@@ -55,13 +55,21 @@ def follow(follower_id: int, followee_id: int, db):
         return
     exists = (
         db.query(Follows)
-        .filter_by(follower_id=follower_id, followee_id=followee_id)
+        .filter_by(
+            follower_id=follower_id,
+            followee_id=followee_id,
+        )
         .first()
     )
     if not exists:
-        follow_relation = Follows(follower_id=follower_id, followee_id=followee_id)
+        follow_relation = Follows(
+            follower_id=follower_id,
+            followee_id=followee_id,
+        )
+
         db.add(follow_relation)
         db.commit()
+
         return True
 
 
