@@ -8,7 +8,7 @@ from api.v1.dependencies import (
     user_dependency,
 )
 from api.v1.activities.schemas import (
-    CommentRequestTalk,
+    CommentRequest,
     CommentDemoResponse,
     CommentDetailResponse,
 )
@@ -37,7 +37,7 @@ async def get_comments(
     path="/{comment_id}",
     response_model=Annotated[List[CommentDetailResponse], None],
 )
-async def get_comments(
+async def get_comment(
     comment_id: int, db: db_dependency, user: user_dependency
 ) -> CommentDetailResponse:
     comment = crud.get_comments(
@@ -55,7 +55,7 @@ async def get_comments(
 async def add_comment_to_talk(
     db: db_dependency,
     user: user_dependency,
-    comment: CommentRequestTalk,
+    comment: CommentRequest,
 ):
     comment = crud.create_comment(
         commenter_id=user["id"],

@@ -8,10 +8,10 @@ def get_talks(user_id: int, db):
     query = (
         select(Talk)
         .options(
-            selectinload(Talk.talker),
+            selectinload(Talk.owner),
             selectinload(Talk.comments),
         )
-        .where(Talk.talker_id == user_id)
+        .where(Talk.owner_id == user_id)
     )
     talks = db.execute(query).scalars().all()
     return talks
@@ -21,7 +21,7 @@ def get_talk(id: int, db):
     query = (
         select(Talk)
         .options(
-            selectinload(Talk.talker),
+            selectinload(Talk.owner),
             selectinload(Talk.comments),
         )
         .where(Talk.id == id)
@@ -30,9 +30,9 @@ def get_talk(id: int, db):
     return talk
 
 
-def create_talk(talker_id: int, talk: dict):
+def create_talk(owner_id: int, talk: dict):
     talk = Talk(
-        talker_id=talker_id,
+        owner_id=owner_id,
         **talk,
     )
     return talk

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
 
 if TYPE_CHECKING:
-    from api.v1.activities import Comment, Talk
+    from api.v1.activities import Comment, Activity
 
 
 class Profile(Base):
@@ -40,9 +40,9 @@ class Profile(Base):
         cascade="all, delete",
     )
 
-    talks: Mapped[list["Talk"]] = relationship(
-        "Talk",
-        back_populates="talker",
+    activities: Mapped[list["Activity"]] = relationship(
+        "Activity",
+        back_populates="owner",
         cascade="all, delete",
     )
 

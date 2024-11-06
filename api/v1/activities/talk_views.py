@@ -20,7 +20,7 @@ router = APIRouter(prefix="/talks", tags=["Activities->Talks"])
 
 
 @router.get(
-    path="/{owner_id}",
+    path="/all/{owner_id}",
     response_model=Annotated[List[TalkDemoResponse], None],
 )
 async def get_talks(
@@ -46,7 +46,6 @@ async def get_talk(
     talk_id: int,
 ) -> TalkDetailResponse:
     talk = crud.get_talk(talk_id, db)
-
     return talk
 
 
@@ -60,7 +59,7 @@ async def create_talk(
     talk: TalkRequest,
 ) -> TalkDetailResponse:
     talk = crud.create_talk(
-        talker_id=user["id"],
+        owner_id=user["id"],
         talk=talk.model_dump(),
     )
 
