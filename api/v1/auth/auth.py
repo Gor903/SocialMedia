@@ -5,10 +5,17 @@ from jose import jwt
 from dotenv import load_dotenv
 import os
 
-from .temp import bcrypt_context, s
-from .models import Users, PasswordReset
+from core.auth import (
+    bcrypt_context,
+    s,
+)
+from .models import (
+    Users,
+    PasswordReset,
+)
 
 load_dotenv()
+
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
@@ -36,6 +43,12 @@ def send_verification_email(user_email: str):
     send_mail(user_email, msg)
 
 
+def send_reset_email(user_email: str, otp: int):
+    msg = MIMEText(f"Your one time password is: {otp}")
+    msg["Subject"] = "Reset your password"
+    send_mail(user_email, msg)
+
+
 def check_otp(otp: int, db):
     obj = db.query(PasswordReset).filter(PasswordReset.otp == otp).first()
     if not obj:
@@ -43,12 +56,6 @@ def check_otp(otp: int, db):
     if obj.expires_date < datetime.now(timezone.utc) or obj.used:
         return False
     return obj
-
-
-def send_reset_email(user_email: str, otp: int):
-    msg = MIMEText(f"Your one time password is: {otp}")
-    msg["Subject"] = "Reset your password"
-    send_mail(user_email, msg)
 
 
 def authenticate_user(email: str, password: str, db):

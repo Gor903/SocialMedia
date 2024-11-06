@@ -65,7 +65,8 @@ async def create_talk(
 
     if not talk:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Could not create talk"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not create talk",
         )
 
     db.add(talk)

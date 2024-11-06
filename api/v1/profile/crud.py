@@ -3,7 +3,10 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from starlette import status
 
-from .models import Profile, Follows
+from .models import (
+    Profile,
+    Follows,
+)
 
 
 def get_profiles(db) -> list:
@@ -60,8 +63,6 @@ def follow(follower_id: int, followee_id: int, db):
         db.add(follow_relation)
         db.commit()
         return True
-
-
 
 
 def unfollow(follower_id: int, followee_id: int, db):

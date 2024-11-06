@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from jose import jwt, JWTError
 from starlette import status
 
-from api.v1.auth.temp import oauth2_bearer
+from core.auth import oauth2_bearer
 from core import SessionLocal
 
 load_dotenv()

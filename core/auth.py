@@ -1,8 +1,9 @@
-import os
-from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
 from itsdangerous import URLSafeTimedSerializer
 from passlib.context import CryptContext
+
+import os
+from dotenv import load_dotenv
 
 load_dotenv()
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
