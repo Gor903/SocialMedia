@@ -6,30 +6,48 @@ from starlette import status
 from .models import Profile, Follows
 
 
-def get_profiles_from_db(db) -> list:
+def get_profiles(db) -> list:
     query = select(
-        Profile.id, Profile.username, Profile.name, Profile.surname
+        Profile.id,
+        Profile.username,
+        Profile.name,
+        Profile.surname,
     ).order_by(Profile.id)
     return db.execute(query)
 
 
-def get_profile_from_db(id: int, db) -> Profile:
-    return db.query(Profile).filter(Profile.id == id).first()
+def get_profile(profile_id: int, db) -> Profile:
+    return db.query(Profile).filter(Profile.id == profile_id).first()
 
 
-def get_followers_from_db(id: int, db) -> list:
+def update_profile(profile_id: int, update_fields: dict, db) -> Profile | bool:
+    profile = get_profile(
+        profile_id=profile_id,
+        db=db,
+    )
+
+    if not profile:
+        return False
+
+    for key, value in update_fields.items():
+        setattr(profile, key, value)
+
+    return profile
+
+
+def get_followers(id: int, db) -> list:
     followers = db.query(Follows).filter(Follows.followee_id == id)
-    profiles = [get_profile_from_db(follower.follower_id, db) for follower in followers]
+    profiles = [get_profile(follower.follower_id, db) for follower in followers]
     return profiles
 
 
-def get_followees_from_db(id: int, db) -> list:
+def get_followees(id: int, db) -> list:
     followers = db.query(Follows).filter(Follows.follower_id == id)
-    profiles = [get_profile_from_db(follower.followee_id, db) for follower in followers]
+    profiles = [get_profile(follower.followee_id, db) for follower in followers]
     return profiles
 
 
-def follow_in_db(follower_id: int, followee_id: int, db):
+def follow(follower_id: int, followee_id: int, db):
     if follower_id == followee_id or followee_id == 0:
         return
     exists = (
@@ -44,18 +62,9 @@ def follow_in_db(follower_id: int, followee_id: int, db):
         return True
 
 
-def update_profile_in_db(id: int, update_fields: dict, db) -> Profile | bool:
-    profile = get_profile_from_db(id, db)
-    if not profile:
-        return False
-
-    for key, value in update_fields.items():
-        setattr(profile, key, value)
-
-    return profile
 
 
-def unfollow_in_db(follower_id: int, followee_id: int, db):
+def unfollow(follower_id: int, followee_id: int, db):
     follow = (
         db.query(Follows)
         .filter(
@@ -64,10 +73,11 @@ def unfollow_in_db(follower_id: int, followee_id: int, db):
         )
         .first()
     )
+
     if not follow:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Follow pair does not found!!!",
         )
-    db.delete(follow)
-    db.commit()
+
+    return follow

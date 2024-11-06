@@ -7,10 +7,10 @@ from fastapi import APIRouter, HTTPException
 
 from api.v1.dependencies import db_dependency, user_dependency
 from api.v1.profile.crud import (
-    get_followees_from_db,
-    get_followers_from_db,
-    follow_in_db,
-    unfollow_in_db,
+    get_followees,
+    get_followers,
+    follow,
+    unfollow,
 )
 from api.v1.profile.schemas import ProfileDemoResponse, FollowManagerRequest
 
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/follows", tags=["profiles->follows"])
     response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(db: db_dependency, user: user_dependency):
-    profiles = get_followers_from_db(user["id"], db)
+    profiles = get_followers(user["id"], db)
 
     return [
         {
@@ -40,7 +40,7 @@ async def get_my_followers(db: db_dependency, user: user_dependency):
     response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(db: db_dependency, user: user_dependency):
-    profiles = get_followees_from_db(user["id"], db)
+    profiles = get_followees(user["id"], db)
 
     return [
         {
@@ -58,7 +58,7 @@ async def get_my_followers(db: db_dependency, user: user_dependency):
     response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(profile_id: int, db: db_dependency, user: user_dependency):
-    profiles = get_followers_from_db(profile_id, db)
+    profiles = get_followers(profile_id, db)
 
     return [
         {
@@ -76,7 +76,7 @@ async def get_my_followers(profile_id: int, db: db_dependency, user: user_depend
     response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(profile_id: int, db: db_dependency, user: user_dependency):
-    profiles = get_followees_from_db(profile_id, db)
+    profiles = get_followees(profile_id, db)
 
     return [
         {
@@ -96,7 +96,7 @@ async def get_my_followers(profile_id: int, db: db_dependency, user: user_depend
 async def follow(
     db: db_dependency, user: user_dependency, followee: FollowManagerRequest
 ):
-    if not follow_in_db(user["id"], followee.id, db):
+    if not follow(user["id"], followee.id, db):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Can't follow!!!"
         )
@@ -110,4 +110,4 @@ async def follow(
 async def unfollow(
     db: db_dependency, user: user_dependency, followee: FollowManagerRequest
 ):
-    unfollow_in_db(user["id"], followee.id, db)
+    unfollow(user["id"], followee.id, db)

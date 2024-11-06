@@ -1,49 +1,55 @@
+from fastapi import APIRouter, HTTPException
+
+from starlette import status
 from typing import Annotated, List
 
-from fastapi import APIRouter, HTTPException
-from starlette import status
-
-
+from api.v1.dependencies import (
+    db_dependency,
+    user_dependency,
+)
 from api.v1.profile.schemas import (
     ProfileDemoResponse,
     ProfileDetailResponse,
     ProfileUpdate,
 )
-from api.v1.dependencies import (
-    db_dependency,
-    user_dependency,
+from .models import (
+    Profile,
 )
-from .crud import (
-    get_profiles_from_db,
-    get_profile_from_db,
-    update_profile_in_db,
-)
+from . import crud
 
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
 
-@router.get(path="/all", response_model=Annotated[List[ProfileDemoResponse], None])
-async def get_profiles(db: db_dependency, user: user_dependency):
-    profiles = get_profiles_from_db(db)
+@router.get(
+    path="/all",
+    response_model=Annotated[List[ProfileDemoResponse], None],
+)
+async def get_profiles(
+    db: db_dependency,
+    user: user_dependency,
+) -> List[ProfileDemoResponse]:
+    profiles = crud.get_profiles(db)
 
-    return [
-        {
-            "id": profile.id,
-            "username": profile.username,
-            "name": profile.name,
-            "surname": profile.surname,
-        }
-        for profile in profiles
-    ]
+    return [profile for profile in profiles]
 
 
 @router.get(
     path="/{profile_id}",
     response_model=Annotated[ProfileDetailResponse, None],
 )
-async def get_profile(profile_id: int, db: db_dependency, user: user_dependency):
-    profile = get_profile_from_db(profile_id, db)
+async def get_profile(
+    profile_id: int,
+    db: db_dependency,
+    user: user_dependency,
+) -> ProfileDemoResponse:
+    if profile_id <= 0:
+        profile_id = user["id"]
+
+    profile = crud.get_profile(
+        profile_id=profile_id,
+        db=db,
+    )
 
     if not profile:
         raise HTTPException(
@@ -59,14 +65,21 @@ async def get_profile(profile_id: int, db: db_dependency, user: user_dependency)
     response_model=Annotated[ProfileDetailResponse, None],
 )
 async def update_profile(
-    user: user_dependency, db: db_dependency, profile_update: ProfileUpdate
-):
-    profile = update_profile_in_db(
-        user["id"], profile_update.model_dump(exclude_unset=True), db
+    user: user_dependency,
+    db: db_dependency,
+    profile_update: ProfileUpdate,
+) -> Profile:
+    profile = crud.update_profile(
+        profile_id=user["id"],
+        update_fields=profile_update.model_dump(exclude_unset=True),
+        db=db,
     )
+
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Could not update profile!!"
         )
+
     db.commit()
+
     return profile
