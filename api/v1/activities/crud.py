@@ -7,8 +7,9 @@ from starlette import status
 from .models import Comment, Talk
 
 
-def create_talk(text: str, talker_id: int, db):
+def create_talk(title: str, text: str, talker_id: int, db):
     talk = Talk(
+        title=title,
         text=text,
         talker_id=talker_id,
     )
@@ -17,7 +18,19 @@ def create_talk(text: str, talker_id: int, db):
     return talk
 
 
-def get_my_talks_from_db(user_id: int, db):
+def update_talk_in_db(id: int, update_fields: dict, db):
+    talk = db.query(Talk).filter_by(id=id).first()
+
+    if not talk:
+        return False
+
+    for key, value in update_fields.items():
+        setattr(talk, key, value)
+
+    return talk
+
+
+def get_talks_from_db(user_id: int, db):
     query = (
         select(Talk)
         .options(
@@ -30,11 +43,11 @@ def get_my_talks_from_db(user_id: int, db):
     return talks
 
 
-def get_my_talk_from_db(id: int, user_id: int, db):
+def get_talk_from_db(id: int, db):
     query = (
         select(Talk)
         .options(selectinload(Talk.talker), selectinload(Talk.comments))
-        .where(Talk.id == id, Talk.talker_id == user_id)
+        .where(Talk.id == id)
     )
     talk = db.execute(query).scalars().first()
     return talk

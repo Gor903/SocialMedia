@@ -31,7 +31,10 @@ class Talk(Base):
     __tablename__ = "talks"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(String, nullable=False)
+
+    links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
 
     talker_id: Mapped[int] = mapped_column(Integer, ForeignKey("profiles.id"))
 

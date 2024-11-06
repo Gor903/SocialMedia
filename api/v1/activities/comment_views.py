@@ -30,6 +30,7 @@ async def add_comment_to_talk(
         talk_id=comment.talk_id,
         db=db,
     )
+    print(comment)
     if comment.id:
         return comment
     raise HTTPException(

@@ -12,14 +12,14 @@ from api.v1.profile.crud import (
     follow_in_db,
     unfollow_in_db,
 )
-from api.v1.profile.schemas import ProfilesResponse, FollowManagerRequest
+from api.v1.profile.schemas import ProfileDemoResponse, FollowManagerRequest
 
 router = APIRouter(prefix="/follows", tags=["profiles->follows"])
 
 
 @router.get(
     path="/followers/self",
-    response_model=Annotated[List[ProfilesResponse], None],
+    response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(db: db_dependency, user: user_dependency):
     profiles = get_followers_from_db(user["id"], db)
@@ -37,7 +37,7 @@ async def get_my_followers(db: db_dependency, user: user_dependency):
 
 @router.get(
     path="/followees/self",
-    response_model=Annotated[List[ProfilesResponse], None],
+    response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(db: db_dependency, user: user_dependency):
     profiles = get_followees_from_db(user["id"], db)
@@ -55,7 +55,7 @@ async def get_my_followers(db: db_dependency, user: user_dependency):
 
 @router.get(
     path="/followers/{profile_id}",
-    response_model=Annotated[List[ProfilesResponse], None],
+    response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(profile_id: int, db: db_dependency, user: user_dependency):
     profiles = get_followers_from_db(profile_id, db)
@@ -73,7 +73,7 @@ async def get_my_followers(profile_id: int, db: db_dependency, user: user_depend
 
 @router.get(
     path="/followees/{profile_id}",
-    response_model=Annotated[List[ProfilesResponse], None],
+    response_model=Annotated[List[ProfileDemoResponse], None],
 )
 async def get_my_followers(profile_id: int, db: db_dependency, user: user_dependency):
     profiles = get_followees_from_db(profile_id, db)

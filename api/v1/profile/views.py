@@ -5,8 +5,8 @@ from starlette import status
 
 
 from api.v1.profile.schemas import (
-    ProfilesResponse,
-    ProfileResponse,
+    ProfileDemoResponse,
+    ProfileDetailResponse,
     ProfileUpdate,
 )
 from api.v1.dependencies import (
@@ -23,7 +23,7 @@ from .crud import (
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 
 
-@router.get(path="/all", response_model=Annotated[List[ProfilesResponse], None])
+@router.get(path="/all", response_model=Annotated[List[ProfileDemoResponse], None])
 async def get_profiles(db: db_dependency, user: user_dependency):
     profiles = get_profiles_from_db(db)
 
@@ -40,7 +40,7 @@ async def get_profiles(db: db_dependency, user: user_dependency):
 
 @router.get(
     path="/{profile_id}",
-    response_model=Annotated[ProfileResponse, None],
+    response_model=Annotated[ProfileDetailResponse, None],
 )
 async def get_profile(profile_id: int, db: db_dependency, user: user_dependency):
     profile = get_profile_from_db(profile_id, db)
@@ -56,7 +56,7 @@ async def get_profile(profile_id: int, db: db_dependency, user: user_dependency)
 @router.patch(
     path="/update",
     status_code=status.HTTP_201_CREATED,
-    response_model=Annotated[ProfileResponse, None],
+    response_model=Annotated[ProfileDetailResponse, None],
 )
 async def update_profile(
     user: user_dependency, db: db_dependency, profile_update: ProfileUpdate

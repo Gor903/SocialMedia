@@ -7,7 +7,7 @@ class FollowManagerRequest(BaseModel):
     id: int
 
 
-class ProfilesResponse(BaseModel):
+class ProfileDemoResponse(BaseModel):
     id: int
     username: str
     name: str | None
@@ -17,7 +17,7 @@ class ProfilesResponse(BaseModel):
         from_attributes = True
 
 
-class ProfileResponse(ProfilesResponse):
+class ProfileDetailResponse(ProfileDemoResponse):
     bio: str | None
     social_links: List[str] | None
 
