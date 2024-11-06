@@ -30,7 +30,7 @@ class Talk(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(String, nullable=False)
-    links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
+    links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True, default=[])
     talker_id: Mapped[int] = mapped_column(Integer, ForeignKey("profiles.id"))
     date: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),

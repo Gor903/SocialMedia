@@ -9,7 +9,8 @@ from api.v1.dependencies import (
 )
 from api.v1.activities.schemas import (
     TalkRequest,
-    TalkResponse,
+    TalkDemoResponse,
+    TalkDetailResponse,
     TalkUpdate,
 )
 from . import crud
@@ -20,13 +21,13 @@ router = APIRouter(prefix="/talks", tags=["Activities->Talks"])
 
 @router.get(
     path="/{owner_id}",
-    response_model=Annotated[List[TalkResponse], None],
+    response_model=Annotated[List[TalkDemoResponse], None],
 )
 async def get_talks(
     db: db_dependency,
     user: user_dependency,
     owner_id: int,
-) -> List[TalkResponse]:
+) -> List[TalkDemoResponse]:
     if owner_id <= 0:
         owner_id = user["id"]
 
@@ -37,13 +38,13 @@ async def get_talks(
 
 @router.get(
     path="/{talk_id}",
-    response_model=Annotated[TalkResponse, None],
+    response_model=Annotated[TalkDetailResponse, None],
 )
 async def get_talk(
     db: db_dependency,
     user: user_dependency,
     talk_id: int,
-) -> TalkResponse:
+) -> TalkDetailResponse:
     talk = crud.get_talk(talk_id, db)
 
     return talk
@@ -57,7 +58,7 @@ async def create_talk(
     db: db_dependency,
     user: user_dependency,
     talk: TalkRequest,
-) -> TalkResponse:
+) -> TalkDetailResponse:
     talk = crud.create_talk(
         talker_id=user["id"],
         talk=talk.model_dump(),
@@ -84,7 +85,7 @@ async def update_talk(
     user: user_dependency,
     id: int,
     talk: TalkUpdate,
-) -> TalkResponse:
+) -> TalkDetailResponse:
     talk = crud.update_talk(
         id=id,
         update_fields=talk.model_dump(exclude_none=True),

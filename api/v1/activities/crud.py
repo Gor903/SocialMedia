@@ -50,12 +50,34 @@ def update_talk(id: int, update_fields: dict, db):
     return talk
 
 
-def create_comment(text: str, user_id: int, talk_id: int, db):
+def create_comment(commenter_id: int, comment: dict):
     comment = Comment(
-        text=text,
-        commenter_id=user_id,
-        talk_id=talk_id,
+        commenter_id=commenter_id,
+        **comment,
     )
-    db.add(comment)
-    db.commit()
+
     return comment
+
+
+def get_comments(user_id: int, db):
+    comments = (
+        db.query(Comment)
+        .filter(
+            Comment.commenter_id == user_id,
+        )
+        .all()
+    )
+
+    return comments
+
+
+def get_comment(comment_id: int, db):
+    comments = (
+        db.query(Comment)
+        .filter(
+            Comment.id == comment_id,
+        )
+        .all()
+    )
+
+    return comments

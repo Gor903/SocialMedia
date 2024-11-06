@@ -1,35 +1,74 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
+from starlette import status
 from typing import Annotated, List
 
-from fastapi.dependencies.utils import get_typed_return_annotation
-from starlette import status
+from api.v1.dependencies import (
+    db_dependency,
+    user_dependency,
+)
+from api.v1.activities.schemas import (
+    CommentRequestTalk,
+    CommentDemoResponse,
+    CommentDetailResponse,
+)
+from . import crud
 
-from api.v1.activities.models import Comment, Talk
-from api.v1.activities.schemas import CommentRequestTalk, TalkRequest
-from api.v1.dependencies import db_dependency, user_dependency
-
-# from .crud import create_comment_to_talk
 
 router = APIRouter(prefix="/comment", tags=["Activities->Comments"])
 
-#
-# @router.post(
-#     path="/add",
-#     status_code=status.HTTP_201_CREATED,
-# )
-# async def add_comment_to_talk(
-#     db: db_dependency, user: user_dependency, comment: CommentRequestTalk
-# ):
-#     comment = create_comment_to_talk(
-#         text=comment.text,
-#         user_id=user["id"],
-#         talk_id=comment.talk_id,
-#         db=db,
-#     )
-#     print(comment)
-#     if comment.id:
-#         return comment
-#     raise HTTPException(
-#         status_code=status.HTTP_404_NOT_FOUND, detail="Could not create comment"
-#     )
+
+@router.get(
+    path="/",
+    response_model=Annotated[List[CommentDemoResponse], None],
+)
+async def get_comments(
+    db: db_dependency, user: user_dependency
+) -> List[CommentDemoResponse]:
+    comments = crud.get_comments(
+        user_id=user["id"],
+        db=db,
+    )
+
+    return [comment for comment in comments]
+
+
+@router.get(
+    path="/{comment_id}",
+    response_model=Annotated[List[CommentDetailResponse], None],
+)
+async def get_comments(
+    comment_id: int, db: db_dependency, user: user_dependency
+) -> CommentDetailResponse:
+    comment = crud.get_comments(
+        user_id=user["id"],
+        db=db,
+    )
+
+    return comment
+
+
+@router.post(
+    path="/create",
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_comment_to_talk(
+    db: db_dependency,
+    user: user_dependency,
+    comment: CommentRequestTalk,
+):
+    comment = crud.create_comment(
+        commenter_id=user["id"],
+        comment=comment.model_dump(),
+    )
+
+    if not comment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not create comment",
+        )
+
+    db.add(comment)
+    db.commit()
+
+    return comment

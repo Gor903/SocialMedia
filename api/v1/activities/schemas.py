@@ -8,11 +8,15 @@ from api.v1.profile.schemas import (
 )
 
 
-class CommentResponse(BaseModel):
+class CommentDemoResponse(BaseModel):
     id: int
     text: str
-    commenter: ProfileDemoResponse
     date: datetime
+    commenter: ProfileDemoResponse
+
+
+class CommentDetailResponse(CommentDemoResponse):
+    talk: "TalkDemoResponse"
 
 
 class CommentRequest(BaseModel):
@@ -26,7 +30,7 @@ class CommentRequestTalk(CommentRequest):
 class TalkRequest(BaseModel):
     title: str
     text: str
-    links: List[str]
+    links: List[str] | None = []
 
 
 class TalkUpdate(BaseModel):
@@ -35,11 +39,14 @@ class TalkUpdate(BaseModel):
     links: List[str] | None = None
 
 
-class TalkResponse(BaseModel):
+class TalkDemoResponse(BaseModel):
     id: int
     title: str
     text: str
-    links: Annotated[List[str], None]
     date: datetime
     talker: ProfileDemoResponse
-    comments: Annotated[List[CommentResponse], None]
+
+
+class TalkDetailResponse(TalkDemoResponse):
+    links: Annotated[List[str], None]
+    comments: Annotated[List[CommentDemoResponse], None]

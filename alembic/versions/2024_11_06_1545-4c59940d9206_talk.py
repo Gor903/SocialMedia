@@ -1,8 +1,8 @@
-"""Talks
+"""Talk
 
-Revision ID: e9a0685ac1fa
+Revision ID: 4c59940d9206
 Revises: 
-Create Date: 2024-11-04 21:09:49.153984
+Create Date: 2024-11-06 15:45:20.652658
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = "e9a0685ac1fa"
+revision: str = "4c59940d9206"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
