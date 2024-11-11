@@ -30,7 +30,7 @@ async def get_comments(
         db=db,
     )
 
-    return [comment for comment in comments]
+    return comments
 
 
 @router.get(
@@ -40,8 +40,8 @@ async def get_comments(
 async def get_comment(
     comment_id: int, db: db_dependency, user: user_dependency
 ) -> CommentDetailResponse:
-    comment = crud.get_comments(
-        user_id=user["id"],
+    comment = crud.get_comment(
+        comment_id=comment_id,
         db=db,
     )
 
@@ -51,12 +51,13 @@ async def get_comment(
 @router.post(
     path="/create",
     status_code=status.HTTP_201_CREATED,
+    response_model=Annotated[CommentDemoResponse, None],
 )
 async def add_comment_to_talk(
     db: db_dependency,
     user: user_dependency,
     comment: CommentRequest,
-):
+) -> CommentDemoResponse:
     comment = crud.create_comment(
         commenter_id=user["id"],
         comment=comment.model_dump(),

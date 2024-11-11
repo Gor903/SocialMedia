@@ -31,7 +31,7 @@ async def get_profiles(
 ) -> List[ProfileDemoResponse]:
     profiles = crud.get_profiles(db)
 
-    return [profile for profile in profiles]
+    return profiles
 
 
 @router.get(

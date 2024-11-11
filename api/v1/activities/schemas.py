@@ -1,11 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 from datetime import datetime
-from typing import List, Annotated
-
-from api.v1.profile.schemas import (
-    ProfileDemoResponse,
-)
+from typing import List, Annotated, Self
 
 
 class ActivityRequest(BaseModel): ...
@@ -19,7 +15,7 @@ class TalkRequest(ActivityRequest):
 
 class ActivityResponse(BaseModel):
     id: int
-    owner: ProfileDemoResponse
+    owner_id: int
     date: datetime
 
 
@@ -44,17 +40,22 @@ class CommentDemoResponse(BaseModel):
     id: int
     text: str
     date: datetime
-    commenter: ProfileDemoResponse
+    commenter_id: int
+    parent_comment_id: int | None = None
 
 
 class CommentDetailResponse(CommentDemoResponse):
-    activity: ActivityResponse
+    activity_id: int | None = None
+    child_comments: List[CommentDemoResponse]
 
 
 class CommentRequest(BaseModel):
-    activity_id: int
+    parent_comment_id: int | None = None
+    activity_id: int | None = None
     text: str
 
-
-# class CommentRequestTalk(CommentRequest):
-#     talk_id: int
+    @model_validator(mode="before")
+    def check_passwords_match(self) -> Self:
+        if len(self.keys()) > 2:
+            raise ValueError("One field must be empty")
+        return self

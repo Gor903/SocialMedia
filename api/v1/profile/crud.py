@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 
-from sqlalchemy import select
+from sqlalchemy import select, desc
+from sqlalchemy.orm import selectinload
 from starlette import status
 
 from .models import (
@@ -10,13 +11,9 @@ from .models import (
 
 
 def get_profiles(db) -> list:
-    query = select(
-        Profile.id,
-        Profile.username,
-        Profile.name,
-        Profile.surname,
-    ).order_by(Profile.id)
-    return db.execute(query)
+    query = select(Profile).order_by(desc(Profile.id))
+
+    return db.execute(query).scalars().all()
 
 
 def get_profile(profile_id: int, db) -> Profile:

@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 
-from typing import List
+from typing import List, TYPE_CHECKING
+
+from api.v1.activities.schemas import ActivityResponse
 
 
 class FollowManagerRequest(BaseModel):
@@ -20,6 +22,7 @@ class ProfileDemoResponse(BaseModel):
 class ProfileDetailResponse(ProfileDemoResponse):
     bio: str | None
     social_links: List[str] | None
+    activities: List["ActivityResponse"] | None
 
 
 class ProfileUpdate(BaseModel):

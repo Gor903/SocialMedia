@@ -34,8 +34,15 @@ class Comment(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     text: Mapped[str] = mapped_column(String, nullable=False)
-    commenter_id: Mapped[int] = mapped_column(Integer, ForeignKey("profiles.id"))
-    activity_id: Mapped[int] = mapped_column(Integer, ForeignKey("activities.id"))
+    commenter_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("profiles.id"), nullable=False
+    )
+    activity_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("activities.id"), nullable=True
+    )
+    parent_comment_id: Mapped[int | None] = mapped_column(
+        ForeignKey("comments.id"), nullable=True
+    )
     date: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc) + timedelta(minutes=5),
@@ -43,6 +50,12 @@ class Comment(Base):
 
     commenter: Mapped[Profile] = relationship("Profile", back_populates="comments")
     activity: Mapped["Talk"] = relationship("Activity", back_populates="comments")
+    parent_comment: Mapped["Comment"] = relationship(
+        "Comment", remote_side="Comment.id", back_populates="child_comments"
+    )
+    child_comments: Mapped[list["Comment"]] = relationship(
+        "Comment", back_populates="parent_comment"
+    )
 
 
 class Talk(Activity):
