@@ -1,9 +1,18 @@
-from pydantic import BaseModel, EmailStr
+from typing import Self
+
+from pydantic import BaseModel, EmailStr, model_validator
 
 
 class CreateUserRequest(BaseModel):
     password: str
+    password_repeat: str
     email: EmailStr
+
+    @model_validator(mode="before")
+    def check_passwords_match(self) -> Self:
+        if self["password"] != self["password_repeat"]:
+            raise ValueError("Passwords do not match!!")
+        return self
 
 
 class PasswordResetForm(BaseModel):
