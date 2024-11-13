@@ -1,5 +1,8 @@
+from typing import List
+
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy.testing.provision import update_db_opts
 
 from .models import Comment, Talk, Post, PostTag
 from .schemas import PostRequest
@@ -83,19 +86,71 @@ def get_comment(comment_id: int, db):
 
     return comments
 
+
+def get_posts(user_id: int, db):
+    posts = db.query(Post).filter(Post.owner_id == user_id).all()
+
+    return posts
+
+
+def get_post(id: int, db):
+    query = (
+        select(Post)
+        .options(
+            selectinload(Post.owner),
+            selectinload(Post.comments),
+            selectinload(Post.tagged_people),
+        )
+        .where(Post.id == id)
+    )
+
+    post = db.execute(query).scalars().first()
+
+    return post
+
+
 def create_post(user_id: int, post: dict) -> Post:
-    tagged_people = None
-    if post.get("tagged_people"):
-        tagged_people = post.pop("tagged_people")
-    print(post)
     post = Post(
         owner_id=user_id,
         **post,
     )
 
-    print(post.id)
     return post
-    # if tagged_people:
-    #     post_tags = [PostTag(
-    #
-    #     ) for profile in tagged_people]
+
+
+def create_tags(post_id: int, tagged_people) -> List[PostTag]:
+    post_tags = [
+        PostTag(
+            post_id=post_id,
+            profile_id=tagged_account,
+        )
+        for tagged_account in tagged_people
+    ]
+
+    return post_tags
+
+
+def update_post(id: int, update_fields: dict, db):
+    post = get_post(id, db)
+
+    if not post:
+        return False
+
+    for key, value in update_fields.items():
+        setattr(post, key, value)
+
+    return post
+
+
+def update_post_tags(post_id: int, tags, db):
+    post_tags = db.query(PostTag).filter(PostTag.post_id == post_id).all()
+
+    [db.delete(post_tag) for post_tag in post_tags]
+    db.commit()
+
+    new_post_tags = create_tags(
+        post_id=post_id,
+        tagged_people=tags,
+    )
+
+    [db.add(new_post_tag) for new_post_tag in new_post_tags]

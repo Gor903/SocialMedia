@@ -67,6 +67,7 @@ class Talk(Activity):
     text: Mapped[str] = mapped_column(String, nullable=False)
     links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True, default=[])
 
+
 class Post(Activity):
     __tablename__ = "posts"
 
@@ -77,10 +78,9 @@ class Post(Activity):
     description: Mapped[str] = mapped_column(String, nullable=True)
 
     tagged_people: Mapped[list["PostTag"]] = relationship(
-        "PostTag",
-        back_populates="post",
-        cascade="all, delete"
+        "PostTag", back_populates="post", cascade="all, delete"
     )
+
 
 class PostTag(Base):
     __tablename__ = "posttags"

@@ -8,7 +8,10 @@ from api.v1.dependencies import (
     user_dependency,
 )
 from api.v1.activities.schemas import (
-    PostRequest
+    PostRequest,
+    PostDemoResponse,
+    PostDetailResponse,
+    PostUpdate,
 )
 from . import crud
 
@@ -16,8 +19,39 @@ from . import crud
 router = APIRouter(prefix="/posts", tags=["Activities->Posts"])
 
 
+@router.get(
+    path="/all/{owner_id}",
+    response_model=Annotated[List[PostDemoResponse], None],
+)
+async def get_talks(
+    db: db_dependency,
+    user: user_dependency,
+    owner_id: int,
+) -> List[PostDemoResponse]:
+    if owner_id <= 0:
+        owner_id = user["id"]
+
+    posts = crud.get_posts(owner_id, db)
+
+    return posts
+
+
+@router.get(
+    path="/{post_id}",
+    response_model=Annotated[PostDetailResponse, None],
+)
+async def get_post(
+    db: db_dependency,
+    user: user_dependency,
+    post_id: int,
+) -> PostDetailResponse:
+    post = crud.get_post(post_id, db)
+
+    return post
+
+
 @router.post(
-    path="/create/talk",
+    path="/create/post",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_post(
@@ -25,14 +59,58 @@ async def create_post(
     user: user_dependency,
     post: PostRequest,
 ):
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="create post then posttags",
+    post = post.model_dump(exclude_none=True)
+
+    tagged_people = []
+    if post.get("tagged_people"):
+        tagged_people = post.pop("tagged_people")
+
+    post = crud.create_post(user_id=user["id"], post=post)
+
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not create talk",
+        )
+
+    db.add(post)
+    db.commit()
+
+    post_tags = crud.create_tags(post.id, tagged_people)
+
+    [db.add(post_tag) for post_tag in post_tags]
+
+    db.commit()
+
+    return post
+
+
+@router.patch(
+    path="/update/post/{id}",
+    status_code=status.HTTP_201_CREATED,
+)
+async def update_post(
+    db: db_dependency,
+    user: user_dependency,
+    id: int,
+    post: PostUpdate,
+) -> PostDetailResponse:
+    post = post.model_dump(exclude_none=True)
+
+    tagged_people = []
+    if post.get("tagged_people"):
+        tagged_people = post.pop("tagged_people")
+
+    post = crud.update_post(
+        id=id,
+        update_fields=post,
+        db=db,
     )
 
-    post = crud.create_post(
-        user_id=user["id"],
-        post=post.model_dump(exclude_none=True)
+    crud.update_post_tags(
+        post_id=id,
+        db=db,
+        tags=tagged_people,
     )
 
     if not post:
@@ -40,7 +118,7 @@ async def create_post(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Could not create talk",
         )
-    db.add(post)
+
     db.commit()
 
     return post

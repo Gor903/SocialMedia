@@ -67,4 +67,28 @@ class PostRequest(ActivityRequest):
     geo_location: Annotated[str, None] = None
     description: Annotated[str, None] = None
 
-    tagged_people: Annotated[List[int], None] = None
+    tagged_people: List[int] | None = None
+
+
+class PostDemoResponse(ActivityResponse):
+    content: List[str]
+    description: str
+
+
+class PostDetailResponse(PostDemoResponse):
+    geo_location: str | None = None
+    tagged_people: List["PostTagResponse"]
+    audio: str | None = None
+    comments: List["CommentDemoResponse"]
+
+
+class PostTagResponse(BaseModel):
+    profile_id: int
+
+
+class PostUpdate(BaseModel):
+    content: List[str] | None = None
+    audio: str | None = None
+    geo_location: str | None = None
+    description: str | None = None
+    tagged_people: List[int] | None = None

@@ -47,9 +47,7 @@ class Profile(Base):
     )
 
     posts_tagged: Mapped[list["PostTag"]] = relationship(
-        "PostTag",
-        back_populates="profile",
-        cascade="all, delete"
+        "PostTag", back_populates="profile", cascade="all, delete"
     )
 
 
