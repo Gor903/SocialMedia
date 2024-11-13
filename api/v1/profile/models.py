@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from core.database import Base
 
 if TYPE_CHECKING:
-    from api.v1.activities import Comment, Activity
+    from api.v1.activities import Comment, Activity, PostTag
 
 
 class Profile(Base):
@@ -44,6 +44,12 @@ class Profile(Base):
         "Activity",
         back_populates="owner",
         cascade="all, delete",
+    )
+
+    posts_tagged: Mapped[list["PostTag"]] = relationship(
+        "PostTag",
+        back_populates="profile",
+        cascade="all, delete"
     )
 
 

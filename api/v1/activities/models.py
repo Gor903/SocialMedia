@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 
+from rich.containers import Lines
 from sqlalchemy import Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -65,3 +66,35 @@ class Talk(Activity):
     title: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(String, nullable=False)
     links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True, default=[])
+
+class Post(Activity):
+    __tablename__ = "posts"
+
+    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    content: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
+    audio: Mapped[str] = mapped_column(String, nullable=True)
+    geo_location: Mapped[str] = mapped_column(String, nullable=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+
+    tagged_people: Mapped[list["PostTag"]] = relationship(
+        "PostTag",
+        back_populates="post",
+        cascade="all, delete"
+    )
+
+class PostTag(Base):
+    __tablename__ = "posttags"
+
+    post_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("posts.id"), primary_key=True
+    )
+    profile_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("profiles.id"), primary_key=True
+    )
+
+    post: Mapped[Post] = relationship(
+        "Post", foreign_keys=[post_id], back_populates="tagged_people"
+    )
+    profile: Mapped[Profile] = relationship(
+        "Profile", foreign_keys=[profile_id], back_populates="posts_tagged"
+    )

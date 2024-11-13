@@ -59,3 +59,12 @@ class CommentRequest(BaseModel):
         if len(self.keys()) > 2:
             raise ValueError("One field must be empty")
         return self
+
+
+class PostRequest(ActivityRequest):
+    content: List[str]
+    audio: Annotated[str, None] = None
+    geo_location: Annotated[str, None] = None
+    description: Annotated[str, None] = None
+
+    tagged_people: Annotated[List[int], None] = None

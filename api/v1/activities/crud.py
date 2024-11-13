@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from .models import Comment, Talk
+from .models import Comment, Talk, Post, PostTag
+from .schemas import PostRequest
 
 
 def get_talks(user_id: int, db):
@@ -81,3 +82,20 @@ def get_comment(comment_id: int, db):
     )
 
     return comments
+
+def create_post(user_id: int, post: dict) -> Post:
+    tagged_people = None
+    if post.get("tagged_people"):
+        tagged_people = post.pop("tagged_people")
+    print(post)
+    post = Post(
+        owner_id=user_id,
+        **post,
+    )
+
+    print(post.id)
+    return post
+    # if tagged_people:
+    #     post_tags = [PostTag(
+    #
+    #     ) for profile in tagged_people]
