@@ -85,10 +85,22 @@ async def update_talk(
     id: int,
     talk: TalkUpdate,
 ) -> TalkDetailResponse:
+    talk = talk.model_dump(exclude_none=True)
+
+    tagged_people = []
+    if talk.get("tagged_people"):
+        tagged_people = talk.pop("tagged_people")
+
     talk = crud.update_talk(
         id=id,
-        update_fields=talk.model_dump(exclude_none=True),
+        update_fields=talk,
         db=db,
+    )
+
+    crud.update_tags(
+        activity_id=id,
+        db=db,
+        tags=tagged_people,
     )
 
     if not talk:

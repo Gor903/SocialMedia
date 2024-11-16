@@ -2,10 +2,8 @@ from typing import List
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy.testing.provision import update_db_opts
 
-from .models import Comment, Talk, Post, PostTag
-from .schemas import PostRequest
+from .models import Comment, Talk, Post, ActivityTag, Reel
 
 
 def get_talks(user_id: int, db):
@@ -13,7 +11,7 @@ def get_talks(user_id: int, db):
         select(Talk)
         .options(
             selectinload(Talk.owner),
-            selectinload(Talk.comments),
+            # selectinload(Talk.comments),
         )
         .where(Talk.owner_id == user_id)
     )
@@ -27,6 +25,7 @@ def get_talk(id: int, db):
         .options(
             selectinload(Talk.owner),
             selectinload(Talk.comments),
+            selectinload(Talk.tagged_people),
         )
         .where(Talk.id == id)
     )
@@ -118,10 +117,10 @@ def create_post(user_id: int, post: dict) -> Post:
     return post
 
 
-def create_tags(post_id: int, tagged_people) -> List[PostTag]:
+def create_tags(activity_id: int, tagged_people) -> List[ActivityTag]:
     post_tags = [
-        PostTag(
-            post_id=post_id,
+        ActivityTag(
+            activity_id=activity_id,
             profile_id=tagged_account,
         )
         for tagged_account in tagged_people
@@ -142,15 +141,60 @@ def update_post(id: int, update_fields: dict, db):
     return post
 
 
-def update_post_tags(post_id: int, tags, db):
-    post_tags = db.query(PostTag).filter(PostTag.post_id == post_id).all()
+def update_tags(activity_id: int, tags, db):
+    post_tags = (
+        db.query(ActivityTag).filter(ActivityTag.activity_id == activity_id).all()
+    )
 
     [db.delete(post_tag) for post_tag in post_tags]
     db.commit()
 
     new_post_tags = create_tags(
-        post_id=post_id,
+        activity_id=activity_id,
         tagged_people=tags,
     )
 
     [db.add(new_post_tag) for new_post_tag in new_post_tags]
+
+
+def get_reels(user_id: int, db):
+    reels = db.query(Reel).filter(Post.owner_id == user_id).all()
+
+    return reels
+
+
+def get_reel(id: int, db):
+    query = (
+        select(Reel)
+        .options(
+            selectinload(Reel.owner),
+            selectinload(Reel.comments),
+            selectinload(Reel.tagged_people),
+        )
+        .where(Reel.id == id)
+    )
+
+    reel = db.execute(query).scalars().first()
+
+    return reel
+
+
+def create_reel(user_id: int, reel: dict) -> Post:
+    reel = Reel(
+        owner_id=user_id,
+        **reel,
+    )
+
+    return reel
+
+
+def update_reel(id: int, update_fields: dict, db):
+    reel = get_reel(id, db)
+
+    if not reel:
+        return False
+
+    for key, value in update_fields.items():
+        setattr(reel, key, value)
+
+    return reel

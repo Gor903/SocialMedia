@@ -4,7 +4,8 @@ from datetime import datetime
 from typing import List, Annotated, Self
 
 
-class ActivityRequest(BaseModel): ...
+class ActivityRequest(BaseModel):
+    tagged_people: List[int] | None = None
 
 
 class TalkRequest(ActivityRequest):
@@ -28,12 +29,14 @@ class TalkDemoResponse(ActivityResponse):
 class TalkDetailResponse(TalkDemoResponse):
     links: Annotated[List[str], None]
     comments: List["CommentDemoResponse"]
+    tagged_people: List["ActivityTagResponse"]
 
 
 class TalkUpdate(BaseModel):
     title: str | None = None
     text: str | None = None
     links: List[str] | None = None
+    tagged_people: List[int] | None = None
 
 
 class CommentDemoResponse(BaseModel):
@@ -42,10 +45,10 @@ class CommentDemoResponse(BaseModel):
     date: datetime
     commenter_id: int
     parent_comment_id: int | None = None
+    activity_id: int | None = None
 
 
 class CommentDetailResponse(CommentDemoResponse):
-    activity_id: int | None = None
     child_comments: List[CommentDemoResponse]
 
 
@@ -67,22 +70,20 @@ class PostRequest(ActivityRequest):
     geo_location: Annotated[str, None] = None
     description: Annotated[str, None] = None
 
-    tagged_people: List[int] | None = None
-
 
 class PostDemoResponse(ActivityResponse):
     content: List[str]
-    description: str
+    description: str | None = None
 
 
 class PostDetailResponse(PostDemoResponse):
     geo_location: str | None = None
-    tagged_people: List["PostTagResponse"]
+    tagged_people: List["ActivityTagResponse"]
     audio: str | None = None
     comments: List["CommentDemoResponse"]
 
 
-class PostTagResponse(BaseModel):
+class ActivityTagResponse(BaseModel):
     profile_id: int
 
 
@@ -90,5 +91,26 @@ class PostUpdate(BaseModel):
     content: List[str] | None = None
     audio: str | None = None
     geo_location: str | None = None
+    description: str | None = None
+    tagged_people: List[int] | None = None
+
+
+class ReelRequest(ActivityRequest):
+    content: str
+    description: Annotated[str, None] = None
+
+
+class ReelDemoResponse(ActivityResponse):
+    content: str
+    description: str | None = None
+
+
+class ReelDetailResponse(ReelDemoResponse):
+    tagged_people: List["ActivityTagResponse"]
+    comments: List["CommentDemoResponse"]
+
+
+class ReelUpdate(BaseModel):
+    content: str | None = None
     description: str | None = None
     tagged_people: List[int] | None = None

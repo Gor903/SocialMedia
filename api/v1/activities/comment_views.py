@@ -53,7 +53,7 @@ async def get_comment(
     status_code=status.HTTP_201_CREATED,
     response_model=Annotated[CommentDemoResponse, None],
 )
-async def add_comment_to_talk(
+async def create_comment(
     db: db_dependency,
     user: user_dependency,
     comment: CommentRequest,

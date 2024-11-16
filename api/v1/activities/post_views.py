@@ -70,7 +70,7 @@ async def create_post(
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not create talk",
+            detail="Could not create post",
         )
 
     db.add(post)
@@ -107,8 +107,8 @@ async def update_post(
         db=db,
     )
 
-    crud.update_post_tags(
-        post_id=id,
+    crud.update_tags(
+        activity_id=id,
         db=db,
         tags=tagged_people,
     )
@@ -116,7 +116,7 @@ async def update_post(
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not create talk",
+            detail="Could not update post",
         )
 
     db.commit()

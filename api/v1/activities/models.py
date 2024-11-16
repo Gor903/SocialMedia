@@ -28,6 +28,9 @@ class Activity(Base):
         back_populates="activity",
         cascade="all, delete",
     )
+    tagged_people: Mapped[list["ActivityTag"]] = relationship(
+        "ActivityTag", back_populates="activity", cascade="all, delete"
+    )
 
 
 class Comment(Base):
@@ -77,24 +80,28 @@ class Post(Activity):
     geo_location: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
 
-    tagged_people: Mapped[list["PostTag"]] = relationship(
-        "PostTag", back_populates="post", cascade="all, delete"
-    )
 
+class ActivityTag(Base):
+    __tablename__ = "activitytags"
 
-class PostTag(Base):
-    __tablename__ = "posttags"
-
-    post_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("posts.id"), primary_key=True
+    activity_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("activities.id"), primary_key=True
     )
     profile_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("profiles.id"), primary_key=True
     )
 
-    post: Mapped[Post] = relationship(
-        "Post", foreign_keys=[post_id], back_populates="tagged_people"
+    activity: Mapped[Activity] = relationship(
+        "Activity", foreign_keys=[activity_id], back_populates="tagged_people"
     )
     profile: Mapped[Profile] = relationship(
-        "Profile", foreign_keys=[profile_id], back_populates="posts_tagged"
+        "Profile", foreign_keys=[profile_id], back_populates="activities_tagged"
     )
+
+
+class Reel(Activity):
+    __tablename__ = "reels"
+
+    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    content: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
