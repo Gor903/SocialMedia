@@ -51,7 +51,7 @@ async def get_post(
 
 
 @router.post(
-    path="/create/post",
+    path="/create",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_post(
@@ -86,7 +86,7 @@ async def create_post(
 
 
 @router.patch(
-    path="/update/post/{id}",
+    path="/update/{id}",
     status_code=status.HTTP_201_CREATED,
 )
 async def update_post(
@@ -122,3 +122,27 @@ async def update_post(
     db.commit()
 
     return post
+
+
+@router.delete(
+    path="/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_post(
+    db: db_dependency,
+    user: user_dependency,
+    post_id: int,
+) -> None:
+    post = crud.get_post(
+        id=post_id,
+        db=db,
+    )
+
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not find post"
+        )
+
+    db.delete(post)
+    db.commit()

@@ -51,7 +51,7 @@ async def get_reel(
 
 
 @router.post(
-    path="/create/reel",
+    path="/create",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_reel(
@@ -86,7 +86,7 @@ async def create_reel(
 
 
 @router.patch(
-    path="/update/reel/{id}",
+    path="/update/{id}",
     status_code=status.HTTP_201_CREATED,
 )
 async def update_post(
@@ -122,3 +122,27 @@ async def update_post(
     db.commit()
 
     return reel
+
+
+@router.delete(
+    path="/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_reel(
+    db: db_dependency,
+    user: user_dependency,
+    reel_id: int,
+) -> None:
+    reel = crud.get_reel(
+        id=reel_id,
+        db=db,
+    )
+
+    if not reel:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not find reel"
+        )
+
+    db.delete(reel)
+    db.commit()

@@ -21,7 +21,8 @@ class Activity(Base):
     )
 
     owner: Mapped[Profile] = relationship(
-        "Profile", back_populates="activities", cascade="all, delete"
+        "Profile",
+        back_populates="activities",
     )
     comments: Mapped[list["Comment"]] = relationship(
         "Comment",
@@ -29,7 +30,9 @@ class Activity(Base):
         cascade="all, delete",
     )
     tagged_people: Mapped[list["ActivityTag"]] = relationship(
-        "ActivityTag", back_populates="activity", cascade="all, delete"
+        "ActivityTag",
+        back_populates="activity",
+        cascade="all, delete",
     )
 
 
@@ -52,13 +55,22 @@ class Comment(Base):
         default=lambda: datetime.now(timezone.utc) + timedelta(minutes=5),
     )
 
-    commenter: Mapped[Profile] = relationship("Profile", back_populates="comments")
-    activity: Mapped["Talk"] = relationship("Activity", back_populates="comments")
+    commenter: Mapped[Profile] = relationship(
+        "Profile",
+        back_populates="comments",
+    )
+    activity: Mapped["Talk"] = relationship(
+        "Activity",
+        back_populates="comments",
+    )
     parent_comment: Mapped["Comment"] = relationship(
-        "Comment", remote_side="Comment.id", back_populates="child_comments"
+        "Comment",
+        remote_side="Comment.id",
+        back_populates="child_comments",
     )
     child_comments: Mapped[list["Comment"]] = relationship(
-        "Comment", back_populates="parent_comment"
+        "Comment",
+        back_populates="parent_comment",
     )
 
 
@@ -92,10 +104,14 @@ class ActivityTag(Base):
     )
 
     activity: Mapped[Activity] = relationship(
-        "Activity", foreign_keys=[activity_id], back_populates="tagged_people"
+        "Activity",
+        foreign_keys=[activity_id],
+        back_populates="tagged_people",
     )
     profile: Mapped[Profile] = relationship(
-        "Profile", foreign_keys=[profile_id], back_populates="activities_tagged"
+        "Profile",
+        foreign_keys=[profile_id],
+        back_populates="activities_tagged",
     )
 
 

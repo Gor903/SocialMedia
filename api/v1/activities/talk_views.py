@@ -15,6 +15,7 @@ from api.v1.activities.schemas import (
 )
 from . import crud
 
+from api.v1.activities.models import Activity, Talk
 
 router = APIRouter(prefix="/talks", tags=["Activities->Talks"])
 
@@ -50,7 +51,7 @@ async def get_talk(
 
 
 @router.post(
-    path="/create/talk",
+    path="/create",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_talk(
@@ -58,9 +59,11 @@ async def create_talk(
     user: user_dependency,
     talk: TalkRequest,
 ) -> TalkDetailResponse:
+    talk_dict = talk.model_dump()
+
     talk = crud.create_talk(
         owner_id=user["id"],
-        talk=talk.model_dump(),
+        talk=talk_dict,
     )
 
     if not talk:
@@ -76,7 +79,7 @@ async def create_talk(
 
 
 @router.patch(
-    path="/update/talk/{id}",
+    path="/update/{id}",
     status_code=status.HTTP_201_CREATED,
 )
 async def update_talk(
@@ -112,3 +115,27 @@ async def update_talk(
     db.commit()
 
     return talk
+
+
+@router.delete(
+    path="/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_talk(
+    db: db_dependency,
+    user: user_dependency,
+    talk_id: int,
+) -> None:
+    talk = crud.get_talk(
+        id=talk_id,
+        db=db,
+    )
+
+    if not talk:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Could not find talk"
+        )
+
+    db.delete(talk)
+    db.commit()
