@@ -130,3 +130,45 @@ class Story(Activity):
     content: Mapped[str] = mapped_column(String, nullable=False)
     audio: Mapped[str] = mapped_column(String, nullable=True)
     geo_location: Mapped[str] = mapped_column(String, nullable=True)
+
+    _highlight: Mapped["HighlightStories"] = relationship(
+        "HighlightStories",
+        back_populates="story",
+        cascade="all, delete",
+    )
+
+
+class Highlight(Activity):
+    __tablename__ = "highlights"
+
+    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    title: Mapped[str] = mapped_column(String, default="Highlight")
+    avatar: Mapped[str] = mapped_column(String, default="No data image")
+
+    stories: Mapped[list["HighlightStories"]] = relationship(
+        "HighlightStories",
+        back_populates="highlight",
+        cascade="all, delete",
+    )
+
+
+class HighlightStories(Base):
+    __tablename__ = "highlight_stories"
+
+    highlight_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("highlights.id"), primary_key=True
+    )
+    story_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("stories.id"), primary_key=True
+    )
+
+    highlight: Mapped[Activity] = relationship(
+        "Highlight",
+        foreign_keys=[highlight_id],
+        back_populates="stories",
+    )
+    story: Mapped[Profile] = relationship(
+        "Story",
+        foreign_keys=[story_id],
+        back_populates="_highlight",
+    )

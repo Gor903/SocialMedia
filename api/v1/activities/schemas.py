@@ -138,3 +138,29 @@ class StoryResponse(ActivityResponse):
 
 class StoryUpdate(BaseModel):
     tagged_people: List[int] | None = None
+
+
+# highlights
+class HighlightRequest(ActivityRequest):
+    title: str
+    stories: List[int]
+    avatar: str
+
+
+class HighlightResponse(ActivityResponse):
+    id: int
+    title: str
+    stories: List["HighlightStoriesResponse"]
+    avatar: str
+
+
+class HighlightUpdate(BaseModel):
+    title: str | None = None
+    stories: List[int] | None = None
+    avatar: str | None = None
+    tagged_people: List[int] | None = None
+
+
+# highlight_stories
+class HighlightStoriesResponse(BaseModel):
+    story_id: int

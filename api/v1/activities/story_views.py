@@ -27,6 +27,9 @@ def get_available_stories(
     user: user_dependency,
     owner_id: int,
 ) -> List:
+    if owner_id <= 0:
+        owner_id = user["id"]
+
     stories = crud.get_available_stories(
         user_id=owner_id,
         db=db,

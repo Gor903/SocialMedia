@@ -1,8 +1,8 @@
-"""story
+"""all
 
-Revision ID: 54c836571796
+Revision ID: 692776ae0c0f
 Revises: 
-Create Date: 2024-11-26 14:28:37.530298
+Create Date: 2024-11-26 19:02:17.247606
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "54c836571796"
+revision: str = "692776ae0c0f"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

@@ -3,6 +3,7 @@ from .comment_views import router as comments_router
 from .post_views import router as posts_router
 from .reel_views import router as reel_router
 from .story_views import router as story_router
+from .highlight_views import router as highlight_router
 
 from .models import Comment, Talk, Activity, ActivityTag
 
@@ -12,6 +13,7 @@ __all__ = [
     "posts_router",
     "reel_router",
     "story_router",
+    "highlight_router",
     "Comment",
     "Talk",
     "Activity",

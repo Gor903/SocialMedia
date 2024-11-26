@@ -2,10 +2,20 @@ from datetime import datetime, timedelta
 from typing import List
 
 from certifi import where
+from pygments import highlight
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
-from .models import Comment, Talk, Post, ActivityTag, Reel, Story
+from .models import (
+    Comment,
+    Talk,
+    Post,
+    ActivityTag,
+    Reel,
+    Story,
+    Highlight,
+    HighlightStories,
+)
 
 
 # talks
@@ -265,3 +275,68 @@ def update_story(id: int, update_fields: dict, db):
         setattr(story, key, value)
 
     return story
+
+
+# highlights
+def get_highlights(user_id: int, db):
+    highlights = db.query(Highlight).filter(Highlight.owner_id == user_id).all()
+
+    return highlights
+
+
+def get_highlight(id: int, db):
+    highlight = db.query(Highlight).filter(Highlight.id == id).first()
+
+    return highlight
+
+
+def create_highlight(owner_id: int, highlight: dict) -> Highlight:
+    highlight = Highlight(
+        owner_id=owner_id,
+        **highlight,
+    )
+
+    return highlight
+
+
+def update_highlight(id: int, update_fields: dict, db):
+    highlight = get_highlight(id, db)
+
+    if not highlight:
+        return False
+
+    for key, value in update_fields.items():
+        setattr(highlight, key, value)
+
+    return highlight
+
+
+# highlight_stories
+def create_highlight_stories(highlight_id: int, stories: list):
+    highlight_stories = [
+        HighlightStories(
+            highlight_id=highlight_id,
+            story_id=story,
+        )
+        for story in stories
+    ]
+
+    return highlight_stories
+
+
+def update_highlight_stories(highlight_id: int, stories: list, db):
+    delete_highlight_stories(highlight_id, db)
+
+    return create_highlight_stories(highlight_id, stories)
+
+
+def delete_highlight_stories(highlight_id: int, db):
+    highlight_stories = (
+        db.query(HighlightStories)
+        .filter(HighlightStories.highlight_id == highlight_id)
+        .all()
+    )
+
+    [db.delete(highlight_story) for highlight_story in highlight_stories]
+
+    db.commit()
