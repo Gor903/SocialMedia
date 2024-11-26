@@ -133,8 +133,7 @@ async def delete_talk(
 
     if not talk:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not find talk"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Could not find talk"
         )
 
     db.delete(talk)

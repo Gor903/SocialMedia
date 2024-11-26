@@ -140,8 +140,7 @@ async def delete_reel(
 
     if not reel:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not find reel"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Could not find reel"
         )
 
     db.delete(reel)

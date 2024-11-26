@@ -4,20 +4,26 @@ from datetime import datetime
 from typing import List, Annotated, Self
 
 
+# activities
 class ActivityRequest(BaseModel):
     tagged_people: List[int] | None = None
 
 
-class TalkRequest(ActivityRequest):
-    title: str
-    text: str
-    links: List[str] | None = []
+class ActivityTagResponse(BaseModel):
+    profile_id: int
 
 
 class ActivityResponse(BaseModel):
     id: int
     owner_id: int
     date: datetime
+
+
+# talks
+class TalkRequest(ActivityRequest):
+    title: str
+    text: str
+    links: List[str] | None = []
 
 
 class TalkDemoResponse(ActivityResponse):
@@ -39,6 +45,19 @@ class TalkUpdate(BaseModel):
     tagged_people: List[int] | None = None
 
 
+# comments
+class CommentRequest(BaseModel):
+    parent_comment_id: int | None = None
+    activity_id: int | None = None
+    text: str
+
+    @model_validator(mode="before")
+    def check_passwords_match(self) -> Self:
+        if len(self.keys()) > 2:
+            raise ValueError("One field must be empty")
+        return self
+
+
 class CommentDemoResponse(BaseModel):
     id: int
     text: str
@@ -52,18 +71,7 @@ class CommentDetailResponse(CommentDemoResponse):
     child_comments: List[CommentDemoResponse]
 
 
-class CommentRequest(BaseModel):
-    parent_comment_id: int | None = None
-    activity_id: int | None = None
-    text: str
-
-    @model_validator(mode="before")
-    def check_passwords_match(self) -> Self:
-        if len(self.keys()) > 2:
-            raise ValueError("One field must be empty")
-        return self
-
-
+# posts
 class PostRequest(ActivityRequest):
     content: List[str]
     audio: Annotated[str, None] = None
@@ -83,10 +91,6 @@ class PostDetailResponse(PostDemoResponse):
     comments: List["CommentDemoResponse"]
 
 
-class ActivityTagResponse(BaseModel):
-    profile_id: int
-
-
 class PostUpdate(BaseModel):
     content: List[str] | None = None
     audio: str | None = None
@@ -95,6 +99,7 @@ class PostUpdate(BaseModel):
     tagged_people: List[int] | None = None
 
 
+# reels
 class ReelRequest(ActivityRequest):
     content: str
     description: Annotated[str, None] = None
@@ -113,4 +118,23 @@ class ReelDetailResponse(ReelDemoResponse):
 class ReelUpdate(BaseModel):
     content: str | None = None
     description: str | None = None
+    tagged_people: List[int] | None = None
+
+
+# stories
+class StoryRequest(ActivityRequest):
+    content: str
+    audio: Annotated[str, None] = None
+    geo_location: Annotated[str, None] = None
+
+
+class StoryResponse(ActivityResponse):
+    content: str
+    geo_location: str | None = None
+    tagged_people: List["ActivityTagResponse"]
+    audio: str | None = None
+    comments: List["CommentDemoResponse"]
+
+
+class StoryUpdate(BaseModel):
     tagged_people: List[int] | None = None

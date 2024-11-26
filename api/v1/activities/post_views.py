@@ -140,8 +140,7 @@ async def delete_post(
 
     if not post:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not find post"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Could not find post"
         )
 
     db.delete(post)

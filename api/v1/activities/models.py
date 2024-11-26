@@ -121,3 +121,12 @@ class Reel(Activity):
     id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
     content: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
+
+
+class Story(Activity):
+    __tablename__ = "stories"
+
+    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    content: Mapped[str] = mapped_column(String, nullable=False)
+    audio: Mapped[str] = mapped_column(String, nullable=True)
+    geo_location: Mapped[str] = mapped_column(String, nullable=True)

@@ -1,11 +1,14 @@
+from datetime import datetime, timedelta
 from typing import List
 
-from sqlalchemy import select
+from certifi import where
+from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
-from .models import Comment, Talk, Post, ActivityTag, Reel
+from .models import Comment, Talk, Post, ActivityTag, Reel, Story
 
 
+# talks
 def get_talks(user_id: int, db):
     query = (
         select(Talk)
@@ -53,6 +56,7 @@ def update_talk(id: int, update_fields: dict, db):
     return talk
 
 
+# comments
 def create_comment(commenter_id: int, comment: dict):
     comment = Comment(
         commenter_id=commenter_id,
@@ -86,6 +90,7 @@ def get_comment(comment_id: int, db):
     return comments
 
 
+# posts
 def get_posts(user_id: int, db):
     posts = db.query(Post).filter(Post.owner_id == user_id).all()
 
@@ -117,18 +122,6 @@ def create_post(user_id: int, post: dict) -> Post:
     return post
 
 
-def create_tags(activity_id: int, tagged_people) -> List[ActivityTag]:
-    post_tags = [
-        ActivityTag(
-            activity_id=activity_id,
-            profile_id=tagged_account,
-        )
-        for tagged_account in tagged_people
-    ]
-
-    return post_tags
-
-
 def update_post(id: int, update_fields: dict, db):
     post = get_post(id, db)
 
@@ -139,6 +132,19 @@ def update_post(id: int, update_fields: dict, db):
         setattr(post, key, value)
 
     return post
+
+
+# activity tags
+def create_tags(activity_id: int, tagged_people) -> List[ActivityTag]:
+    post_tags = [
+        ActivityTag(
+            activity_id=activity_id,
+            profile_id=tagged_account,
+        )
+        for tagged_account in tagged_people
+    ]
+
+    return post_tags
 
 
 def update_tags(activity_id: int, tags, db):
@@ -157,6 +163,7 @@ def update_tags(activity_id: int, tags, db):
     [db.add(new_post_tag) for new_post_tag in new_post_tags]
 
 
+# reels
 def get_reels(user_id: int, db):
     reels = db.query(Reel).filter(Post.owner_id == user_id).all()
 
@@ -198,3 +205,63 @@ def update_reel(id: int, update_fields: dict, db):
         setattr(reel, key, value)
 
     return reel
+
+
+# stories
+def get_available_stories(user_id: int, db):
+    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+
+    query = select(Story.id).where(
+        and_(
+            Story.owner_id == user_id,
+            Story.date >= twenty_four_hours_ago,
+        )
+    )
+
+    stories = db.execute(query).scalars().all()
+
+    return stories
+
+
+def get_story(id: int, db):
+    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+
+    query = (
+        select(Story)
+        .options(
+            selectinload(Story.owner),
+            selectinload(Story.comments),
+            selectinload(Story.tagged_people),
+        )
+        .where(
+            and_(
+                Story.id == id,
+                Story.date >= twenty_four_hours_ago,
+            )
+        )
+    )
+
+    story = db.execute(query).scalars().first()
+
+    return story
+
+
+def create_story(user_id: int, story: dict) -> Story:
+    story = Story(
+        owner_id=user_id,
+        **story,
+    )
+
+    return story
+
+
+def update_story(id: int, update_fields: dict, db):
+    story = get_story(id, db)
+
+    if not story:
+        return False
+
+    for key, value in update_fields.items():
+        setattr(story, key, value)
+
+    return story
