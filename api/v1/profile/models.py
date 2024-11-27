@@ -55,10 +55,10 @@ class Follows(Base):
     __tablename__ = "follows"
 
     follower_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("profiles.id"), primary_key=True
+        Integer, ForeignKey("profiles.id", ondelete="CASCADE"), primary_key=True
     )
     followee_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("profiles.id"), primary_key=True
+        Integer, ForeignKey("profiles.id", ondelete="CASCADE"), primary_key=True
     )
 
     follower: Mapped[Profile] = relationship(

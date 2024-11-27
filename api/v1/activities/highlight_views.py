@@ -121,3 +121,26 @@ async def update_post(
     db.commit()
 
     return highlight
+
+
+@router.delete(
+    path="/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_highlight(
+    db: db_dependency,
+    user: user_dependency,
+    highlight_id: int,
+) -> None:
+    highlight = crud.get_highlight(
+        id=highlight_id,
+        db=db,
+    )
+
+    if not highlight:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Could not find highlight"
+        )
+
+    db.delete(highlight)
+    db.commit()

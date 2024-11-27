@@ -59,11 +59,13 @@ async def create_talk(
     user: user_dependency,
     talk: TalkRequest,
 ) -> TalkDetailResponse:
-    talk_dict = talk.model_dump()
+    talk = talk.model_dump(exclude_none=True)
+
+    tagged_people = talk.pop("tagged_people") if talk.get("tagged_people") else []
 
     talk = crud.create_talk(
         owner_id=user["id"],
-        talk=talk_dict,
+        talk=talk,
     )
 
     if not talk:
@@ -73,6 +75,12 @@ async def create_talk(
         )
 
     db.add(talk)
+    db.commit()
+
+    talk_tags = crud.create_tags(talk.id, tagged_people)
+
+    [db.add(talk_tag) for talk_tag in talk_tags]
+
     db.commit()
 
     return talk
@@ -90,9 +98,7 @@ async def update_talk(
 ) -> TalkDetailResponse:
     talk = talk.model_dump(exclude_none=True)
 
-    tagged_people = []
-    if talk.get("tagged_people"):
-        tagged_people = talk.pop("tagged_people")
+    tagged_people = talk.pop("tagged_people") if talk.get("tagged_people") else []
 
     talk = crud.update_talk(
         id=id,

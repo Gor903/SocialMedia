@@ -42,13 +42,13 @@ class Comment(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     text: Mapped[str] = mapped_column(String, nullable=False)
     commenter_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("profiles.id"), nullable=False
+        Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False
     )
     activity_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("activities.id"), nullable=True
+        Integer, ForeignKey("activities.id", ondelete="CASCADE"), nullable=True
     )
     parent_comment_id: Mapped[int | None] = mapped_column(
-        ForeignKey("comments.id"), nullable=True
+        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
     )
     date: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
@@ -71,13 +71,16 @@ class Comment(Base):
     child_comments: Mapped[list["Comment"]] = relationship(
         "Comment",
         back_populates="parent_comment",
+        cascade="all, delete",
     )
 
 
 class Talk(Activity):
     __tablename__ = "talks"
 
-    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(
+        ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
+    )
     title: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(String, nullable=False)
     links: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True, default=[])
@@ -86,7 +89,9 @@ class Talk(Activity):
 class Post(Activity):
     __tablename__ = "posts"
 
-    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(
+        ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
+    )
     content: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
     audio: Mapped[str] = mapped_column(String, nullable=True)
     geo_location: Mapped[str] = mapped_column(String, nullable=True)
@@ -97,10 +102,10 @@ class ActivityTag(Base):
     __tablename__ = "activitytags"
 
     activity_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("activities.id"), primary_key=True
+        Integer, ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
     )
     profile_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("profiles.id"), primary_key=True
+        Integer, ForeignKey("profiles.id", ondelete="CASCADE"), primary_key=True
     )
 
     activity: Mapped[Activity] = relationship(
@@ -118,7 +123,9 @@ class ActivityTag(Base):
 class Reel(Activity):
     __tablename__ = "reels"
 
-    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(
+        ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
+    )
     content: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -126,7 +133,9 @@ class Reel(Activity):
 class Story(Activity):
     __tablename__ = "stories"
 
-    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(
+        ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
+    )
     content: Mapped[str] = mapped_column(String, nullable=False)
     audio: Mapped[str] = mapped_column(String, nullable=True)
     geo_location: Mapped[str] = mapped_column(String, nullable=True)
@@ -141,7 +150,9 @@ class Story(Activity):
 class Highlight(Activity):
     __tablename__ = "highlights"
 
-    id: Mapped[int] = mapped_column(ForeignKey("activities.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(
+        ForeignKey("activities.id", ondelete="CASCADE"), primary_key=True
+    )
     title: Mapped[str] = mapped_column(String, default="Highlight")
     avatar: Mapped[str] = mapped_column(String, default="No data image")
 
@@ -156,10 +167,10 @@ class HighlightStories(Base):
     __tablename__ = "highlight_stories"
 
     highlight_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("highlights.id"), primary_key=True
+        Integer, ForeignKey("highlights.id", ondelete="CASCADE"), primary_key=True
     )
     story_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("stories.id"), primary_key=True
+        Integer, ForeignKey("stories.id", ondelete="CASCADE"), primary_key=True
     )
 
     highlight: Mapped[Activity] = relationship(

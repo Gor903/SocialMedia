@@ -52,7 +52,7 @@ class CommentRequest(BaseModel):
     text: str
 
     @model_validator(mode="before")
-    def check_passwords_match(self) -> Self:
+    def check_comments_request(self) -> Self:
         if len(self.keys()) > 2:
             raise ValueError("One field must be empty")
         return self

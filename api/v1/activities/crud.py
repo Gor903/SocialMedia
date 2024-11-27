@@ -89,15 +89,15 @@ def get_comments(user_id: int, db):
 
 
 def get_comment(comment_id: int, db):
-    comments = (
+    comment = (
         db.query(Comment)
         .filter(
             Comment.id == comment_id,
         )
-        .all()
+        .first()
     )
 
-    return comments
+    return comment
 
 
 # posts

@@ -61,9 +61,7 @@ async def create_post(
 ):
     post = post.model_dump(exclude_none=True)
 
-    tagged_people = []
-    if post.get("tagged_people"):
-        tagged_people = post.pop("tagged_people")
+    tagged_people = post.pop("tagged_people") if post.get("tagged_people") else []
 
     post = crud.create_post(user_id=user["id"], post=post)
 
@@ -97,9 +95,7 @@ async def update_post(
 ) -> PostDetailResponse:
     post = post.model_dump(exclude_none=True)
 
-    tagged_people = []
-    if post.get("tagged_people"):
-        tagged_people = post.pop("tagged_people")
+    tagged_people = post.pop("tagged_people") if post.get("tagged_people") else []
 
     post = crud.update_post(
         id=id,
